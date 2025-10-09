@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cisco-github-io-deployment
+  labels:
+    app: cisco-github-io
+spec:
+  replicas: 1 # You can increase this for more instances of your application
+  selector:
+    matchLabels:
+      app: cisco-github-io
+  template:
+    metadata:
+      labels:
+        app: cisco-github-io
+    spec:
+      containers:
+      - name: cisco-github-io-container
+        image: my-cisco-img  # Use the name of the Docker image you just built
+        imagePullPolicy: Never # Important for local testing with a local Docker image
+                               # Change to Always or IfNotPresent if pushing to a registry
+        ports:
+        - containerPort: 80 #
