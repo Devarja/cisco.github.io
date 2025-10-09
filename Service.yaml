@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cisco-github-io-service
+  labels:
+    app: cisco-github-io
+spec:
+  selector:
+    app: cisco-github-io # Selects pods with the label 'app: cisco-github-io'
+  ports:
+  - protocol: TCP
+    port: 80             # The port the Service itself will listen on
+    targetPort: 80       # The port on the pod that the Service will forward traffic to
+  type: NodePort
