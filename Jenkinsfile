@@ -1,8 +1,6 @@
-
-    // Jenkinsfile
-   pipeline{
+pipeline{
        agent any
-   }
+   
    environment {
     // Replace with your Docker Hub username and image name
     DOCKER_IMAGE = "devarajab/cisco-image"
@@ -34,3 +32,4 @@ post {
         }
     }
 } 
+}
