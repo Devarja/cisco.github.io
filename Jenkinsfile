@@ -29,19 +29,7 @@
                     }
                 }
             }
-            stage('Push Docker Image') {
-                steps {
-                    script {
-                        # Authenticate with Docker Hub using Jenkins credentials
-                        withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                            sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
-                            sh "docker push ${APP_IMAGE_NAME}:${env.BUILD_NUMBER}"
-                            sh "docker tag ${APP_IMAGE_NAME}:${env.BUILD_NUMBER} ${APP_IMAGE_NAME}:latest"
-                            sh "docker push ${APP_IMAGE_NAME}:latest"
-                        }
-                    }
-                }
-            }
+            
             
             stage('Deploy to Kubernetes') {
                 steps {
