@@ -9,10 +9,10 @@
             }
         }
         environment {
-            # Replace with your Docker Hub username
+            
             DOCKER_HUB_USERNAME = 'devarajab'
             APP_IMAGE_NAME = "${DOCKER_HUB_USERNAME}/cisco-github-io-app"
-            # Replace with your Kubernetes namespace if different from 'default'
+            
             KUBERNETES_NAMESPACE = 'jenkins'
         }
         stages {
@@ -24,7 +24,7 @@
             stage('Build Docker Image') {
                 steps {
                     script {
-                        # Build the Docker image
+                        
                         sh "docker build -t ${APP_IMAGE_NAME}:${env.BUILD_NUMBER} ."
                     }
                 }
@@ -34,12 +34,12 @@
             stage('Deploy to Kubernetes') {
                 steps {
                     script {
-                        # Apply the Kubernetes Deployment and Service
-                        # Ensure your deployment.yaml points to the correct image name:tag
+                        
+                        
                         sh "kubectl apply -f cisco-github-io-deployment.yaml -n ${KUBERNETES_NAMESPACE}"
                         sh "kubectl apply -f cisco-github-io-service.yaml -n ${KUBERNETES_NAMESPACE}"
 
-                        # Optional: Rollout restart to ensure new image is picked up
+        
                         sh "kubectl rollout restart deployment/cisco-github-io-deployment -n ${KUBERNETES_NAMESPACE}"
                         sh "kubectl rollout status deployment/cisco-github-io-deployment -n ${KUBERNETES_NAMESPACE}"
                     }
