@@ -1,4 +1,4 @@
-```groovy
+
     // Jenkinsfile
     pipeline {
         agent {
@@ -55,4 +55,4 @@
             }
         }
     }
-    ```
+    
