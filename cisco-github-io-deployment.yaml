@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
       - name: cisco-github-io-container
-        image: my-cisco-img  # Use the name of the Docker image you just built
-        imagePullPolicy: Never # Important for local testing with a local Docker image
+        image: devarajab/cisco-github-io:latest # Use the name of the Docker image you just built
+        imagePullPolicy: Always # Important for local testing with a local Docker image
                                # Change to Always or IfNotPresent if pushing to a registry
         ports:
         - containerPort: 80 #
