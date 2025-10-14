@@ -8,7 +8,6 @@ pipeline {
 		        }
 		    }
 		}
-} 
 
     // environment {
     //     DOCKER_IMAGE = "devarajab/cisco-image"  // Change to your image name
