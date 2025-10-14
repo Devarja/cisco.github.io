@@ -26,9 +26,9 @@ pipeline {
                 script {
                     // Update deployment.yaml to use the locally built image tag
                     sh """
-                    sed -i.bak 's|image:.*|image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}|' deployment.yaml
-                    kubectl apply -f deployment.yaml
-                    kubectl apply -f service.yaml
+                    sed -i.bak 's|image:.*|image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}|' cisco-github-io-deployment.yaml
+                    kubectl apply -f cisco-github-io-deployment.yaml
+                    kubectl apply -f cisco-github-io-service.yaml
                     """
                 }
             }
