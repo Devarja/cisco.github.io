@@ -27,7 +27,7 @@ pipeline {
             steps {
                 script {
                     // Replace image tag in deployment.yaml with the newly built image tag
-                    sh "sed -i.bak 's|image:.*|image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}|' deployment.yaml"
+                    sh "sed -i.bak 's|image:.*|image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}|' cisco-github-io-deployment.yaml"
                 }
             }
         }
