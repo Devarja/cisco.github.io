@@ -32,16 +32,16 @@ pipeline {
             }
          }
 
-        stage('Deploy to Kubernetes') {
+      stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: KUBECONFIG_CREDENTIAL_ID, variable: 'KUBECONFIG_FILE')]) {
-                    script {
-                        // Apply deployment and service YAML files using the kubeconfig file
-                        sh "kubectl --kubeconfig=${KUBECONFIG_FILE} apply -f cisco-github-io-deployment.yaml --validate=false"
-                        sh "kubectl --kubeconfig=${KUBECONFIG_FILE} apply -f cisco-github-io-service.yaml --validate=false"
-                    }
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE')]) {
+                    sh '''
+                        kubectl --kubeconfig=$KUBECONFIG_FILE apply -f cisco-github-io-deployment.yaml --validate=false
+                        kubectl --kubeconfig=$KUBECONFIG_FILE apply -f cisco-github-io-service.yaml --validate=false
+                    '''
                 }
             }
+
         }
     }
 
