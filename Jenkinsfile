@@ -8,6 +8,7 @@ pipeline {
 		        }
 		    }
 		}
+} 
 
     // environment {
     //     DOCKER_IMAGE = "devarajab/cisco-image"  // Change to your image name
@@ -31,34 +32,34 @@ pipeline {
     //         }
     //     }
 
-        stage('Update Deployment YAML') {
-            steps {
-                script {
-                    // Replace image tag in deployment.yaml with the newly built image tag
-                    sh "sed -i.bak 's|image:.*|image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}|' cisco-github-io-deployment.yaml"
-                }
-            }
-        }
+//         stage('Update Deployment YAML') {
+//             steps {
+//                 script {
+//                     // Replace image tag in deployment.yaml with the newly built image tag
+//                     sh "sed -i.bak 's|image:.*|image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}|' cisco-github-io-deployment.yaml"
+//                 }
+//             }
+//         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                withCredentials([file(credentialsId: KUBECONFIG_CREDENTIAL_ID, variable: 'KUBECONFIG_FILE')]) {
-                    script {
-                        // Apply deployment and service YAML files using the kubeconfig file
-                        sh "kubectl --kubeconfig=${KUBECONFIG_FILE} apply -f cisco-github-io-deployment.yaml --validate=false"
-                        sh "kubectl --kubeconfig=${KUBECONFIG_FILE} apply -f cisco-github-io-service.yaml --validate=false"
-                    }
-                }
-            }
-        }
-    }
+//         stage('Deploy to Kubernetes') {
+//             steps {
+//                 withCredentials([file(credentialsId: KUBECONFIG_CREDENTIAL_ID, variable: 'KUBECONFIG_FILE')]) {
+//                     script {
+//                         // Apply deployment and service YAML files using the kubeconfig file
+//                         sh "kubectl --kubeconfig=${KUBECONFIG_FILE} apply -f cisco-github-io-deployment.yaml --validate=false"
+//                         sh "kubectl --kubeconfig=${KUBECONFIG_FILE} apply -f cisco-github-io-service.yaml --validate=false"
+//                     }
+//                 }
+//             }
+//         }
+//     }
 
-    post {
-        success {
-            echo 'Application deployed successfully and exposed via Kubernetes service.'
-        }
-        failure {
-            echo 'Deployment failed. Check the Jenkins logs for details.'
-        }
-    }
-}
+//     post {
+//         success {
+//             echo 'Application deployed successfully and exposed via Kubernetes service.'
+//         }
+//         failure {
+//             echo 'Deployment failed. Check the Jenkins logs for details.'
+//         }
+//     }
+// }
