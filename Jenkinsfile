@@ -36,8 +36,8 @@ pipeline {
             steps {
                 script {
                     // Apply the updated deployment and service YAML files to the cluster
-                    sh "kubectl apply -f deployment.yaml"
-                    sh "kubectl apply -f service.yaml"
+                    sh "kubectl apply -f cisco-github-io-deployment.yaml"
+                    sh "kubectl apply -f cisco-github-io-service.yaml"
                 }
             }
         }
