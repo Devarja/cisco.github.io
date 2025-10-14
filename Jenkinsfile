@@ -3,20 +3,31 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "devarajab/cisco-image"
+        KUBECONFIG = '/root/.kube/config' // Adjust if your kubeconfig path differs inside Jenkins
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/Devarja/cisco.github.io.git'
+                git 'https://github.com/Devarja/cisco.github.io.git' // Your repo URL
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Build Docker image with build number tag and latest tag
                     sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
                     sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
+                }
+            }
+        }
+
+        stage('Update Kubernetes Deployment') {
+            steps {
+                script {
+                    // Replace image tag in deployment.yaml with the newly built image tag
+                    sh "sed -i.bak 's|image:.*|image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}|' deployment.yaml"
                 }
             }
         }
@@ -24,12 +35,9 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Update deployment.yaml to use the locally built image tag
-                    sh """
-                    sed -i.bak 's|image:.*|image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}|' cisco-github-io-deployment.yaml
-                    kubectl apply -f cisco-github-io-deployment.yaml
-                    kubectl apply -f cisco-github-io-service.yaml
-                    """
+                    // Apply the updated deployment and service YAML files to the cluster
+                    sh "kubectl apply -f deployment.yaml"
+                    sh "kubectl apply -f service.yaml"
                 }
             }
         }
@@ -38,7 +46,7 @@ pipeline {
     post {
         always {
             script {
-                sh 'echo Pipeline completed successfully'
+                echo 'Pipeline completed successfully'
             }
         }
     }
