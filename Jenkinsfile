@@ -3,20 +3,33 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "devarajab/cisco-image"
-        KUBECONFIG = '/root/.kube/config' // Adjust if your kubeconfig path differs inside Jenkins
+        // KUBECONFIG path inside the Jenkins agent/container
+        KUBECONFIG = "${env.WORKSPACE}/.kube/config"
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/Devarja/cisco.github.io.git' // Your repo URL
+                git 'https://github.com/Devarja/cisco.github.io.git'
+            }
+        }
+
+        stage('Prepare Kubeconfig') {
+            steps {
+                // Inject the kubeconfig credential file into the workspace
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE')]) {
+                    sh '''
+                        mkdir -p $(dirname ${KUBECONFIG})
+                        cp ${KUBECONFIG_FILE} ${KUBECONFIG}
+                        chmod 600 ${KUBECONFIG}
+                    '''
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build Docker image with build number tag and latest tag
                     sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
                     sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
                 }
@@ -26,7 +39,6 @@ pipeline {
         stage('Update Kubernetes Deployment') {
             steps {
                 script {
-                    // Replace image tag in deployment.yaml with the newly built image tag
                     sh "sed -i.bak 's|image:.*|image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}|' cisco-github-io-deployment.yaml"
                 }
             }
@@ -35,9 +47,9 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Apply the updated deployment and service YAML files to the cluster
-                    sh "kubectl apply -f cisco-github-io-deployment.yaml --validate=false"
-                    sh "kubectl apply -f cisco-github-io-service.yaml --validate=false"
+                    // Use the KUBECONFIG environment variable to point kubectl to the injected config
+                    sh "kubectl --kubeconfig=${KUBECONFIG} apply -f cisco-github-io-deployment.yaml --validate=false"
+                    sh "kubectl --kubeconfig=${KUBECONFIG} apply -f cisco-github-io-service.yaml --validate=false"
                 }
             }
         }
@@ -50,4 +62,3 @@ pipeline {
             }
         }
     }
-}
