@@ -1,24 +1,26 @@
-pipeline {
-	agent any
+peline {
+    agent any
 
     environment {
-        DOCKER_IMAGE = "devarajab/cisco-image"  // Change to your image name
-        KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'             // Jenkins credential ID for kubeconfig file
+        DOCKER_IMAGE = "devarajab/cisco-image"
+        KUBECONFIG_CREDENTIAL_ID = 'kubeconfig'
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/Devarja/cisco.github.io.git'  // Replace with your repo URL
+                git 'https://github.com/Devarja/cisco.github.io.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build Docker image with build number tag and latest tag
                     sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
                     sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
+                    // Add docker login if needed here
+                    sh "docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                    sh "docker push ${DOCKER_IMAGE}:latest"
                 }
             }
         }
@@ -26,22 +28,20 @@ pipeline {
         stage('Update Deployment YAML') {
             steps {
                 script {
-                    // Replace image tag in deployment.yaml with the newly built image tag
                     sh "sed -i.bak 's|image:.*|image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}|' cisco-github-io-deployment.yaml"
                 }
             }
-         }
+        }
 
-      stage('Deploy to Kubernetes') {
+        stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG_FILE')]) {
+                withCredentials([file(credentialsId: KUBECONFIG_CREDENTIAL_ID, variable: 'KUBECONFIG_FILE')]) {
                     sh '''
                         kubectl --kubeconfig=$KUBECONFIG_FILE apply -f cisco-github-io-deployment.yaml --validate=false
                         kubectl --kubeconfig=$KUBECONFIG_FILE apply -f cisco-github-io-service.yaml --validate=false
                     '''
                 }
             }
-
         }
     }
 
@@ -53,4 +53,3 @@ pipeline {
             echo 'Deployment failed. Check the Jenkins logs for details.'
         }
     }
-}
