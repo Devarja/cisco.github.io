@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cisco-github-io-deployment
+  name: cisco-deployment
   labels:
     app: cisco-github-io
 spec:
